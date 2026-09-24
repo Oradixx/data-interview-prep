@@ -1,0 +1,150 @@
+{
+  "theme": "pipelines",
+  "questions": [
+    {
+      "id": "pipelines-elt",
+      "type": "mcq",
+      "level": 1,
+      "question": "What characterizes ELT compared with ETL?",
+      "options": [
+        "Data is loaded raw into the warehouse first, then transformed there (e.g. with dbt)",
+        "Data is transformed on a separate server before being loaded",
+        "ELT skips the transformation step entirely",
+        "ELT only works with streaming data"
+      ],
+      "answer": 0,
+      "explanation": "Cheap storage and powerful cloud warehouses made it practical to load raw data and transform it with SQL inside the warehouse. You keep the raw data and can re-run transformations at any time."
+    },
+    {
+      "id": "pipelines-idempotent",
+      "type": "mcq",
+      "level": 2,
+      "question": "What makes a daily load task idempotent?",
+      "options": [
+        "It runs in less than a minute",
+        "Running it twice for the same day gives the same result as running it once",
+        "It never fails",
+        "It appends new rows at every run"
+      ],
+      "answer": 1,
+      "explanation": "Idempotency lets you retry or backfill safely. Typical techniques: overwrite the day's partition, or `MERGE`/upsert on a key, instead of blindly appending (which creates duplicates on retry)."
+    },
+    {
+      "id": "pipelines-watermark-deletes",
+      "type": "mcq",
+      "level": 3,
+      "question": "An incremental load selects `WHERE updated_at > last_watermark`. What does it miss?",
+      "options": [
+        "Rows inserted since the last run",
+        "Rows deleted in the source",
+        "Rows updated since the last run",
+        "Nothing, it is complete"
+      ],
+      "answer": 1,
+      "explanation": "A deleted row no longer exists, so no query on the source table can return it. Soft deletes, periodic full reconciliations, or change data capture (reading the database log) solve this."
+    },
+    {
+      "id": "pipelines-cdc",
+      "type": "mcq",
+      "level": 2,
+      "question": "What does a log-based change data capture tool such as Debezium read to stream changes?",
+      "options": [
+        "The application's HTTP logs",
+        "The database's transaction log (PostgreSQL WAL, MySQL binlog)",
+        "A full table dump every minute",
+        "The database's query history"
+      ],
+      "answer": 1,
+      "explanation": "The transaction log already records every insert, update and delete in order. Reading it captures deletes and intermediate updates with low load on the source database."
+    },
+    {
+      "id": "pipelines-airflow-catchup",
+      "type": "mcq",
+      "level": 2,
+      "question": "In Apache Airflow, what happens when a DAG with `catchup=True` is enabled with a `start_date` one month in the past?",
+      "options": [
+        "It runs once, now",
+        "It schedules a run for every missed interval since `start_date`",
+        "It waits until next month",
+        "It fails because `start_date` is in the past"
+      ],
+      "answer": 1,
+      "explanation": "Catchup creates one run per data interval between `start_date` and now. That is useful for backfills, but it can trigger a flood of runs by surprise; set `catchup=False` if you only want future runs."
+    },
+    {
+      "id": "pipelines-dbt-ref",
+      "type": "mcq",
+      "level": 2,
+      "question": "What does `{{ ref('stg_orders') }}` do in a dbt model?",
+      "options": [
+        "Copies the stg_orders table",
+        "References another model: dbt resolves its table name and builds the dependency graph",
+        "Runs the stg_orders tests",
+        "Creates an index on stg_orders"
+      ],
+      "answer": 1,
+      "explanation": "`ref()` lets dbt know which models depend on which, so it runs them in the right order, and it swaps in the right schema per environment (dev vs prod)."
+    },
+    {
+      "id": "pipelines-quality-checks",
+      "type": "mcq",
+      "level": 2,
+      "question": "Which checks would catch a daily load that silently stopped bringing new data? Select all that apply.",
+      "options": [
+        "A freshness check on `max(loaded_at)`",
+        "Comparing today's row count with previous days",
+        "A unit test of a Python helper function",
+        "Linting the SQL files"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Freshness and volume checks look at the data itself, so they detect runtime problems. Unit tests and linters check code, not whether today's data arrived."
+    },
+    {
+      "id": "pipelines-orchestrator",
+      "type": "mcq",
+      "level": 1,
+      "question": "What does an orchestrator such as Airflow, Dagster or Prefect bring over a crontab?",
+      "options": [
+        "Faster SQL queries",
+        "Dependencies between tasks, retries, backfills and visibility on every run",
+        "A built-in data warehouse",
+        "Automatic data cleaning"
+      ],
+      "answer": 1,
+      "explanation": "Cron only starts commands at a time. An orchestrator knows that task B waits for task A, retries failures, reruns past intervals and shows history and logs."
+    },
+    {
+      "id": "pipelines-batch-order",
+      "type": "order",
+      "level": 2,
+      "question": "Order the stages of a robust daily batch pipeline.",
+      "steps": [
+        "Extract the day's data from the source",
+        "Land the raw payload unchanged in object storage",
+        "Run schema and quality checks on the raw data",
+        "Transform it into cleaned, modeled tables",
+        "Publish the day's partition atomically (overwrite or swap)",
+        "Record run metrics (row counts, duration) for monitoring"
+      ],
+      "explanation": "Landing raw data first lets you replay. Checks before transformation stop bad data early. Atomic publication means consumers never see a half-written day, and recorded metrics feed freshness and volume alerts."
+    },
+    {
+      "id": "pipelines-incident",
+      "type": "order",
+      "level": 2,
+      "question": "The nightly pipeline failed. Order a good incident response.",
+      "steps": [
+        "Read the alert and the failing task's logs",
+        "Find the root cause: source data, code or infrastructure",
+        "Fix it and test the fix",
+        "Re-run the failed interval (safe because tasks are idempotent)",
+        "Check the outputs and the freshness of downstream tables",
+        "Write a short postmortem and add a check that would have caught it earlier"
+      ],
+      "explanation": "Idempotent tasks turn recovery into a simple re-run. The last step matters most in the long term: every incident should leave the pipeline better tested."
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "theme": "rag-agents",
+  "questions": [
+    {
+      "id": "rag-agents-pipeline",
+      "type": "order",
+      "level": 1,
+      "question": "Order the steps of a basic RAG pipeline, from indexing to answer.",
+      "steps": [
+        "Split the documents into chunks",
+        "Embed the chunks and store them in a vector index",
+        "Embed the user's question",
+        "Retrieve the top-k most similar chunks",
+        "Insert the chunks and the question into the prompt",
+        "The LLM generates an answer grounded in the chunks"
+      ],
+      "explanation": "The first two steps happen offline, when documents are ingested; the rest happens at query time. Each stage can fail independently, so evaluate retrieval and generation separately."
+    },
+    {
+      "id": "rag-agents-chunk-size",
+      "type": "mcq",
+      "level": 2,
+      "question": "What is the trade-off when choosing chunk size?",
+      "options": [
+        "There is none; bigger is always better",
+        "Too large dilutes relevance and uses context; too small loses the surrounding meaning",
+        "Chunk size only affects indexing speed",
+        "Smaller chunks always improve answers"
+      ],
+      "answer": 1,
+      "explanation": "Typical setups use a few hundred tokens with some overlap, split along the document's structure (headings, paragraphs). The right size depends on the documents and questions, so measure it on an evaluation set."
+    },
+    {
+      "id": "rag-agents-hybrid",
+      "type": "mcq",
+      "level": 2,
+      "question": "Users search for error codes like `E-4012` and product references. Why add BM25 keyword search to vector search?",
+      "options": [
+        "BM25 is always more accurate than embeddings",
+        "Exact tokens such as IDs, codes and acronyms are matched reliably by keywords but poorly by embeddings",
+        "Vector search cannot handle numbers at all",
+        "It removes the need for chunking"
+      ],
+      "answer": 1,
+      "explanation": "Hybrid search combines both rankings (e.g. with reciprocal rank fusion): embeddings capture meaning and paraphrases, BM25 captures exact terms. It is a common and cheap win."
+    },
+    {
+      "id": "rag-agents-reranker",
+      "type": "mcq",
+      "level": 3,
+      "question": "What does a reranker (cross-encoder) add after the first retrieval step?",
+      "options": [
+        "It generates the final answer",
+        "It rescores the retrieved candidates by reading query and passage together, which improves precision",
+        "It re-embeds the whole corpus",
+        "It translates the query"
+      ],
+      "answer": 1,
+      "explanation": "Bi-encoder retrieval is fast but coarse. A cross-encoder is too slow to run on the whole corpus, but accurate on the top 50–100 candidates, so the best passages end up in the prompt."
+    },
+    {
+      "id": "rag-agents-eval",
+      "type": "mcq",
+      "level": 2,
+      "question": "The RAG assistant answers wrongly although the right document is in the corpus. What do you check first?",
+      "options": [
+        "The temperature",
+        "Whether retrieval returned the right chunk (recall@k on an evaluation set)",
+        "The font of the documents",
+        "The GPU model"
+      ],
+      "answer": 1,
+      "explanation": "If the chunk was not retrieved, the LLM never saw it: fix chunking, embeddings, hybrid search or k. If it was retrieved, look at generation: prompt, faithfulness to the context, answer relevance."
+    },
+    {
+      "id": "rag-agents-agent",
+      "type": "mcq",
+      "level": 1,
+      "question": "What distinguishes an agent from a single LLM call?",
+      "options": [
+        "An agent uses a bigger model",
+        "An agent runs in a loop, deciding which tools to call and using their results until the goal is reached",
+        "An agent has no system prompt",
+        "An agent always works offline"
+      ],
+      "answer": 1,
+      "explanation": "The model chooses actions (search, run code, query a database), observes the results and decides what to do next. That adds power, but also cost, latency and new failure modes, so add limits and logging."
+    },
+    {
+      "id": "rag-agents-tool-calling",
+      "type": "mcq",
+      "level": 2,
+      "question": "With function / tool calling, who actually executes the tool?",
+      "options": [
+        "The LLM provider's servers, automatically",
+        "Your application: the model returns the tool name and JSON arguments, you run it and send back the result",
+        "The user's browser",
+        "Nobody; the model imagines the result"
+      ],
+      "answer": 1,
+      "explanation": "The model only proposes a structured call. Your code validates the arguments, applies permissions, runs the tool and returns the output as a new message. That is where you enforce safety."
+    },
+    {
+      "id": "rag-agents-injection",
+      "type": "mcq",
+      "level": 3,
+      "question": "An agent reads web pages and can send emails. Which measures limit prompt-injection risk? Select all that apply.",
+      "options": [
+        "Give tools the least privilege they need",
+        "Require human confirmation for sensitive actions such as sending an email",
+        "Follow instructions found in retrieved documents",
+        "Put API keys in the prompt so the model can use them"
+      ],
+      "answer": [0, 1],
+      "explanation": "Retrieved content is untrusted data that may contain instructions (\"ignore previous instructions…\"). Limit what tools can do and keep a human in the loop for irreversible actions. Secrets never belong in the prompt."
+    },
+    {
+      "id": "rag-agents-loop",
+      "type": "order",
+      "level": 2,
+      "question": "Order one iteration of a tool-using agent loop.",
+      "steps": [
+        "The application sends the goal, history and available tools to the model",
+        "The model chooses a tool and its arguments",
+        "The application validates and executes the tool call",
+        "The tool result is appended to the conversation",
+        "The model decides: call another tool, or give the final answer"
+      ],
+      "explanation": "The loop continues until the model answers or a limit (steps, cost, time) is hit. Logging every step makes the agent debuggable."
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "theme": "streaming",
+  "questions": [
+    {
+      "id": "streaming-ordering",
+      "type": "mcq",
+      "level": 1,
+      "question": "What ordering guarantee does Kafka provide?",
+      "options": [
+        "Global ordering across the whole topic",
+        "Ordering within a partition only",
+        "No ordering at all",
+        "Ordering by message timestamp"
+      ],
+      "answer": 1,
+      "explanation": "Each partition is an append-only log read in order. Across partitions there is no global order, which is why the choice of message key matters."
+    },
+    {
+      "id": "streaming-key",
+      "type": "mcq",
+      "level": 2,
+      "question": "All events of a given device must be processed in order. What should the producer do?",
+      "options": [
+        "Use the device id as the message key",
+        "Send all events to a random partition",
+        "Create one topic per device",
+        "Use a single-partition topic for everything"
+      ],
+      "answer": 0,
+      "explanation": "The default partitioner hashes the key, so all messages with the same key go to the same partition and stay ordered, while different devices are spread over partitions for parallelism. One topic per device or a single partition would not scale."
+    },
+    {
+      "id": "streaming-consumer-group",
+      "type": "mcq",
+      "level": 2,
+      "question": "A topic has 6 partitions and a consumer group has 8 consumers. What happens?",
+      "options": [
+        "Each message is read by all 8 consumers",
+        "6 consumers each get one partition; 2 stay idle",
+        "Kafka creates 2 extra partitions automatically",
+        "The group refuses to start"
+      ],
+      "answer": 1,
+      "explanation": "Within a group, a partition is assigned to at most one consumer, so parallelism is capped by the number of partitions. Different groups each receive every message."
+    },
+    {
+      "id": "streaming-at-least-once",
+      "type": "mcq",
+      "level": 2,
+      "question": "A consumer processes a message, then crashes before committing its offset. What happens after restart?",
+      "options": [
+        "The message is lost",
+        "The message is processed again (at-least-once delivery)",
+        "Kafka detects it and skips the message",
+        "The whole partition is replayed from the beginning"
+      ],
+      "answer": 1,
+      "explanation": "The committed offset is still before that message, so it is read again. Processing should therefore be idempotent (upserts on a key, deduplication), or you need transactions for exactly-once."
+    },
+    {
+      "id": "streaming-retention",
+      "type": "mcq",
+      "level": 1,
+      "question": "How does Kafka differ from a classic message queue?",
+      "options": [
+        "Messages are deleted as soon as one consumer reads them",
+        "Messages are kept for a retention period, whether they were consumed or not, and can be replayed",
+        "Kafka stores messages only in memory",
+        "Kafka cannot have several consumers"
+      ],
+      "answer": 1,
+      "explanation": "Kafka is a durable log: retention is based on time or size, and each consumer group tracks its own offset. You can reprocess history by resetting offsets, for example after fixing a bug."
+    },
+    {
+      "id": "streaming-watermark",
+      "type": "mcq",
+      "level": 3,
+      "question": "What is a watermark in stream processing (Spark Structured Streaming, Flink)?",
+      "options": [
+        "A signature proving where the data comes from",
+        "A threshold on event time that says how late data may arrive and still be counted in a window",
+        "The maximum throughput of a topic",
+        "The offset of the last committed message"
+      ],
+      "answer": 1,
+      "explanation": "Events arrive late and out of order. The watermark (e.g. max event time seen minus 10 minutes) lets the engine finalize windows and drop state, while still accepting reasonably late events."
+    },
+    {
+      "id": "streaming-windows",
+      "type": "mcq",
+      "level": 2,
+      "question": "You want to group user activity into bursts separated by 30 minutes of inactivity. Which window?",
+      "options": [
+        "Tumbling window",
+        "Sliding (hopping) window",
+        "Session window",
+        "Global window"
+      ],
+      "answer": 2,
+      "explanation": "Session windows close after a gap of inactivity, so their length varies. Tumbling windows are fixed and non-overlapping (e.g. every 5 minutes); sliding windows are fixed and overlapping."
+    },
+    {
+      "id": "streaming-event-time",
+      "type": "mcq",
+      "level": 2,
+      "question": "A sensor buffers readings offline and sends them 2 hours later. To compute per-hour averages correctly, which time should the windows use?",
+      "options": [
+        "Processing time (when the event reaches the system)",
+        "Event time (when the reading was taken)",
+        "The broker's clock",
+        "The consumer's commit time"
+      ],
+      "answer": 1,
+      "explanation": "Processing time would put the readings in the wrong hour. Event time, together with watermarks for late data, gives results that do not depend on network delays."
+    },
+    {
+      "id": "streaming-message-path",
+      "type": "order",
+      "level": 2,
+      "question": "Order the path of a record through Kafka (producer with `acks=all`).",
+      "steps": [
+        "The producer serializes the record and picks a partition from its key",
+        "The partition leader appends it to its log",
+        "Followers in the in-sync replica set replicate it, then the producer gets its acknowledgement",
+        "A consumer of the group assigned to that partition fetches it",
+        "The consumer processes it, then commits its offset"
+      ],
+      "explanation": "With `acks=all`, the write is acknowledged only once all in-sync replicas have it, so losing one broker does not lose the record. Committing after processing gives at-least-once semantics."
+    },
+    {
+      "id": "streaming-aggregation",
+      "type": "order",
+      "level": 2,
+      "question": "Order the steps of a streaming job that computes per-device averages every 5 minutes.",
+      "steps": [
+        "Read events from the Kafka topic",
+        "Parse them and validate the schema (bad records to a dead-letter topic)",
+        "Assign event time and define a watermark for late data",
+        "Aggregate in 5-minute tumbling windows per device",
+        "Write the results to the sink idempotently (upsert on device + window)"
+      ],
+      "explanation": "Validating early keeps bad records from crashing the job. Event time with a watermark handles late data, and idempotent writes make restarts safe."
+    }
+  ]
+}

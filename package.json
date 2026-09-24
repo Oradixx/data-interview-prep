@@ -1,0 +1,12 @@
+{
+  "name": "data-interview-prep",
+  "private": true,
+  "type": "module",
+  "description": "Interview practice for data engineering, MLOps, DevOps and LLM roles — static site, no build step.",
+  "scripts": {
+    "test": "node --test",
+    "validate": "node scripts/validate.mjs",
+    "serve": "python3 -m http.server 8000"
+  },
+  "license": "MIT"
+}

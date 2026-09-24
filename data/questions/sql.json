@@ -1,0 +1,115 @@
+{
+  "theme": "sql",
+  "questions": [
+    {
+      "id": "sql-logical-order",
+      "type": "order",
+      "level": 1,
+      "question": "Put the clauses of a SELECT query in their logical evaluation order.",
+      "steps": ["FROM / JOIN", "WHERE", "GROUP BY", "HAVING", "SELECT", "ORDER BY", "LIMIT"],
+      "explanation": "The engine first builds the row set (FROM/JOIN), filters rows (WHERE), groups them, filters groups (HAVING), computes the output columns (SELECT), sorts, then limits. This is why a column alias defined in SELECT can be used in ORDER BY but not in WHERE."
+    },
+    {
+      "id": "sql-where-having",
+      "type": "mcq",
+      "level": 1,
+      "question": "What is the difference between `WHERE` and `HAVING`?",
+      "options": [
+        "`WHERE` filters rows before aggregation; `HAVING` filters groups after aggregation",
+        "`HAVING` is just a faster version of `WHERE`",
+        "`WHERE` can only be used with joins; `HAVING` with single tables",
+        "`HAVING` filters rows before `GROUP BY`; `WHERE` filters after"
+      ],
+      "answer": 0,
+      "explanation": "`WHERE` runs before `GROUP BY` and cannot use aggregates; `HAVING` runs after grouping, so it can filter on `COUNT(*)`, `SUM(...)`, etc. Filtering rows early with `WHERE` is also cheaper."
+    },
+    {
+      "id": "sql-count-null",
+      "type": "mcq",
+      "level": 1,
+      "question": "A column `email` has 100 rows, 20 of them NULL. What do `COUNT(*)` and `COUNT(email)` return?",
+      "options": ["100 and 100", "100 and 80", "80 and 80", "80 and 100"],
+      "answer": 1,
+      "explanation": "`COUNT(*)` counts rows; `COUNT(column)` counts non-NULL values of that column. Most aggregate functions (SUM, AVG, MIN, MAX) also ignore NULLs."
+    },
+    {
+      "id": "sql-rank",
+      "type": "mcq",
+      "level": 2,
+      "question": "Scores 100, 100 and 90 are ranked with `ORDER BY score DESC`. What does `RANK()` return?",
+      "options": ["1, 2, 3", "1, 1, 2", "1, 1, 3", "1, 2, 2"],
+      "answer": 2,
+      "explanation": "`RANK()` gives ties the same rank and leaves a gap (1, 1, 3). `DENSE_RANK()` gives 1, 1, 2 without gaps, and `ROW_NUMBER()` gives 1, 2, 3 with an arbitrary order between the ties."
+    },
+    {
+      "id": "sql-not-in-null",
+      "type": "mcq",
+      "level": 3,
+      "question": "`SELECT * FROM employees WHERE id NOT IN (SELECT manager_id FROM employees)` returns no rows at all. What is the most likely cause?",
+      "options": [
+        "The subquery returns at least one NULL `manager_id`",
+        "`NOT IN` cannot be used with a subquery on the same table",
+        "Every employee is also a manager",
+        "The query needs a `DISTINCT` in the subquery"
+      ],
+      "answer": 0,
+      "explanation": "`x NOT IN (1, 2, NULL)` evaluates to UNKNOWN, never TRUE, so every row is filtered out. Use `NOT EXISTS` (or filter the NULLs out of the subquery), which behaves as expected."
+    },
+    {
+      "id": "sql-left-join-where",
+      "type": "mcq",
+      "level": 2,
+      "question": "`customers c LEFT JOIN orders o ON o.customer_id = c.id WHERE o.status = 'paid'` — what happens to customers without orders?",
+      "options": [
+        "They are kept, with NULL order columns",
+        "They are removed: the WHERE condition on `o` turns the LEFT JOIN into an inner join",
+        "They are duplicated once per order status",
+        "The query fails because `o.status` can be NULL"
+      ],
+      "answer": 1,
+      "explanation": "For customers without orders, `o.status` is NULL, so `o.status = 'paid'` is not TRUE and the row is filtered out. To keep them, move the condition into the join: `ON o.customer_id = c.id AND o.status = 'paid'`."
+    },
+    {
+      "id": "sql-running-total",
+      "type": "mcq",
+      "level": 2,
+      "question": "What does `SUM(amount) OVER (PARTITION BY customer_id ORDER BY order_date)` compute?",
+      "options": [
+        "The total amount per customer, repeated on every row",
+        "A running (cumulative) total of amount per customer, in date order",
+        "The total amount per date across all customers",
+        "It fails: window functions cannot use ORDER BY"
+      ],
+      "answer": 1,
+      "explanation": "With an `ORDER BY` inside `OVER`, the default frame goes from the start of the partition to the current row, which gives a cumulative sum. Without `ORDER BY`, you get the partition total on every row. Unlike `GROUP BY`, window functions keep every row."
+    },
+    {
+      "id": "sql-index-unusable",
+      "type": "mcq",
+      "level": 3,
+      "question": "A B-tree index exists on `users.email`. Which predicates typically prevent PostgreSQL from using it? Select all that apply.",
+      "options": [
+        "`WHERE lower(email) = 'a@b.com'` (no expression index)",
+        "`WHERE email LIKE '%@gmail.com'`",
+        "`WHERE email = 'a@b.com'`",
+        "`WHERE email > 'm'`"
+      ],
+      "answer": [0, 1],
+      "explanation": "Wrapping the column in a function means the index on the raw column no longer matches (create an index on `lower(email)` instead). A leading wildcard cannot use B-tree ordering. Equality and range comparisons on the indexed column can use the index."
+    },
+    {
+      "id": "sql-tuning-order",
+      "type": "order",
+      "level": 2,
+      "question": "A query got slow in production. Order the steps of a sound tuning process.",
+      "steps": [
+        "Reproduce the slow query with realistic parameters",
+        "Read the actual plan with `EXPLAIN ANALYZE`",
+        "Find the costly node (sequential scan, spilled sort, bad row estimate…)",
+        "Apply one change: index, rewrite, or refresh statistics",
+        "Re-measure and compare against the baseline"
+      ],
+      "explanation": "Measure first, change one thing at a time, and re-measure. `EXPLAIN ANALYZE` shows real row counts and timings, so you can see where the estimates are wrong instead of guessing."
+    }
+  ]
+}

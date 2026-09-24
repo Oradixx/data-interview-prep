@@ -1,0 +1,149 @@
+{
+  "theme": "spark",
+  "questions": [
+    {
+      "id": "spark-lazy-action",
+      "type": "mcq",
+      "level": 1,
+      "question": "Which of these triggers the execution of a Spark job?",
+      "options": [
+        "`df.filter(...)`",
+        "`df.select(...)`",
+        "`df.count()`",
+        "`df.withColumn(...)`"
+      ],
+      "answer": 2,
+      "explanation": "Transformations (filter, select, withColumn, join…) are lazy: they only build a plan. Actions (count, collect, show, write) trigger execution, which lets Spark optimize the whole plan at once."
+    },
+    {
+      "id": "spark-shuffle",
+      "type": "mcq",
+      "level": 2,
+      "question": "Which operation causes a shuffle (data exchanged between executors)?",
+      "options": [
+        "`filter`",
+        "`select`",
+        "`groupBy(...).agg(...)`",
+        "`withColumn`"
+      ],
+      "answer": 2,
+      "explanation": "Wide transformations (groupBy, distinct, most joins, repartition) need all rows with the same key on the same partition, so data moves across the network. Narrow ones (filter, select, map) work partition by partition."
+    },
+    {
+      "id": "spark-broadcast",
+      "type": "mcq",
+      "level": 2,
+      "question": "You join a 2 TB fact table with a 20 MB country table. What does a broadcast join do?",
+      "options": [
+        "Sends a copy of the small table to every executor, so the big table is not shuffled",
+        "Splits both tables into equal partitions",
+        "Writes the small table to disk first",
+        "Sorts both tables before merging them"
+      ],
+      "answer": 0,
+      "explanation": "Every executor joins its partitions of the big table locally with its copy of the small one, which avoids shuffling 2 TB. Spark does it automatically below `spark.sql.autoBroadcastJoinThreshold`, or when you use the `broadcast()` hint."
+    },
+    {
+      "id": "spark-skew",
+      "type": "mcq",
+      "level": 3,
+      "question": "In a stage, 199 tasks finish in seconds and one runs for 20 minutes. What is the likely cause, and a fix?",
+      "options": [
+        "Data skew on the join or group key; salt the key or enable AQE skew-join handling",
+        "Not enough memory on the driver; increase driver memory",
+        "Too many partitions; call `coalesce(1)`",
+        "The cluster is too big; remove executors"
+      ],
+      "answer": 0,
+      "explanation": "One key (often NULL or a default value) holds a large share of the rows, so its partition becomes a straggler. Salting spreads that key over several partitions; Adaptive Query Execution can split skewed partitions automatically."
+    },
+    {
+      "id": "spark-coalesce",
+      "type": "mcq",
+      "level": 2,
+      "question": "What is the difference between `repartition(n)` and `coalesce(n)`?",
+      "options": [
+        "None, they are aliases",
+        "`coalesce` reduces the number of partitions by merging them without a full shuffle; `repartition` does a full shuffle and can increase or decrease it",
+        "`repartition` only works on RDDs",
+        "`coalesce` sorts the data"
+      ],
+      "answer": 1,
+      "explanation": "`coalesce` is cheap for reducing partitions before a write, but it can leave them unbalanced. `repartition` rebalances evenly (optionally by column) at the cost of a shuffle."
+    },
+    {
+      "id": "spark-small-files",
+      "type": "mcq",
+      "level": 2,
+      "question": "Why is writing 100,000 tiny Parquet files a problem?",
+      "options": [
+        "Parquet does not support small files",
+        "Listing and opening many files adds large overhead, and small files compress and scan poorly",
+        "It uses too much driver memory during the write only",
+        "It is not a problem"
+      ],
+      "answer": 1,
+      "explanation": "Readers spend their time on metadata and file opens instead of reading data. Fix it by repartitioning before writing, or by compacting regularly (e.g. `OPTIMIZE` on Delta tables)."
+    },
+    {
+      "id": "spark-parquet",
+      "type": "mcq",
+      "level": 1,
+      "question": "What does Parquet bring over CSV for analytics? Select all that apply.",
+      "options": [
+        "Column pruning: read only the needed columns",
+        "Efficient per-column compression and encoding",
+        "An embedded schema with real data types",
+        "Files that are easy to read in a text editor"
+      ],
+      "answer": [
+        0,
+        1,
+        2
+      ],
+      "explanation": "Parquet is columnar, compressed and typed, and it stores statistics that allow predicate pushdown (skipping row groups). It is binary, so it is not human-readable."
+    },
+    {
+      "id": "spark-cache",
+      "type": "mcq",
+      "level": 2,
+      "question": "When is `df.cache()` worth using?",
+      "options": [
+        "Always, it makes every job faster",
+        "When the same DataFrame is reused by several actions",
+        "Before writing a DataFrame once",
+        "To reduce the number of partitions"
+      ],
+      "answer": 1,
+      "explanation": "Without caching, every action recomputes the lineage from the source. Caching pays off when a result is reused; otherwise it just consumes executor memory."
+    },
+    {
+      "id": "spark-execution-order",
+      "type": "order",
+      "level": 3,
+      "question": "An action is called on a DataFrame. Order what Spark does.",
+      "steps": [
+        "The driver builds a logical plan from your code",
+        "The Catalyst optimizer turns it into an optimized physical plan",
+        "The plan is split into stages at shuffle boundaries",
+        "Each stage is split into tasks, one per partition",
+        "Executors run the tasks and return or write the results"
+      ],
+      "explanation": "Stages are separated by shuffles; within a stage, tasks run in parallel, one per partition. That is why the number of partitions sets the parallelism."
+    },
+    {
+      "id": "spark-debug-slow",
+      "type": "order",
+      "level": 2,
+      "question": "A Spark job suddenly takes 3 hours instead of 20 minutes. Order the investigation.",
+      "steps": [
+        "Open the Spark UI and find the slowest stage",
+        "Look at the task duration distribution to spot skew",
+        "Check shuffle read/write sizes and disk spill",
+        "Apply a targeted fix: broadcast join, salting, repartitioning, more memory",
+        "Re-run and compare the stage metrics"
+      ],
+      "explanation": "The Spark UI shows where the time goes. Straggler tasks point to skew, and large spill points to memory or partition sizing, so you fix the actual bottleneck rather than guessing."
+    }
+  ]
+}

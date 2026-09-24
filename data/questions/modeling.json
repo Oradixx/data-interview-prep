@@ -1,0 +1,148 @@
+{
+  "theme": "modeling",
+  "questions": [
+    {
+      "id": "modeling-fact-table",
+      "type": "mcq",
+      "level": 1,
+      "question": "In a star schema, what does a fact table contain?",
+      "options": [
+        "Descriptive attributes such as customer name and city",
+        "Numeric measures of business events plus foreign keys to the dimensions",
+        "Only the primary keys of the source systems",
+        "Aggregated reports ready for dashboards"
+      ],
+      "answer": 1,
+      "explanation": "Facts record events (a sale, a sensor reading) with their measures (amount, quantity, value) and keys to the dimensions that describe them (date, product, customer). Dimensions hold the descriptive attributes."
+    },
+    {
+      "id": "modeling-grain",
+      "type": "mcq",
+      "level": 2,
+      "question": "What is the first thing to decide when designing a fact table?",
+      "options": [
+        "Its grain: exactly what one row represents",
+        "The BI tool that will read it",
+        "Which columns to index",
+        "The partitioning scheme"
+      ],
+      "answer": 0,
+      "explanation": "The grain (\"one row per order line\", \"one row per device per minute\") determines which dimensions and measures make sense. Mixing grains in one table leads to double counting."
+    },
+    {
+      "id": "modeling-scd2",
+      "type": "mcq",
+      "level": 2,
+      "question": "A customer moves from Paris to Lyon and you must keep reporting past sales under Paris. Which technique?",
+      "options": [
+        "SCD Type 1: overwrite the city",
+        "SCD Type 2: add a new row with validity dates and a current flag",
+        "Delete the customer and recreate it",
+        "Store the city in the fact table only"
+      ],
+      "answer": 1,
+      "explanation": "Type 2 keeps history by versioning the dimension row (`valid_from`, `valid_to`, `is_current`). Old facts keep pointing to the Paris version, new facts to the Lyon version. Type 1 overwrites and loses history."
+    },
+    {
+      "id": "modeling-surrogate-key",
+      "type": "mcq",
+      "level": 2,
+      "question": "Why use a surrogate key in a dimension instead of the source system's natural key? Select all that apply.",
+      "options": [
+        "It allows several versions of the same entity (SCD Type 2)",
+        "It insulates the warehouse from changes or reuse of source keys",
+        "It guarantees the quality of the dimension's attributes",
+        "It is required to partition the table"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "With SCD2 the same customer has several rows, so the natural key is no longer unique; the surrogate key identifies each version. It also protects you when a source system reassigns or changes its keys. It says nothing about attribute quality."
+    },
+    {
+      "id": "modeling-columnar",
+      "type": "mcq",
+      "level": 1,
+      "question": "Why do analytical warehouses (BigQuery, Snowflake, Redshift) store data by column?",
+      "options": [
+        "Analytical queries read a few columns over many rows, and similar values compress well",
+        "Columnar storage makes single-row updates faster",
+        "It is required by the SQL standard",
+        "It avoids the need for a schema"
+      ],
+      "answer": 0,
+      "explanation": "An aggregation over 3 columns of a 200-column table only reads those 3 columns, and a column of similar values compresses far better than mixed rows. Row stores remain better for OLTP workloads that read and write whole rows."
+    },
+    {
+      "id": "modeling-lakehouse",
+      "type": "mcq",
+      "level": 2,
+      "question": "What do table formats such as Delta Lake, Apache Iceberg or Apache Hudi add on top of Parquet files in object storage?",
+      "options": [
+        "A graphical interface to browse files",
+        "ACID transactions, schema enforcement and time travel",
+        "Automatic conversion of CSV to JSON",
+        "An in-memory cache replacing the files"
+      ],
+      "answer": 1,
+      "explanation": "They keep a transaction log / metadata layer over the files, so concurrent writes are atomic, schemas are enforced and evolve safely, and you can query a previous version. That is what turns a data lake into a \"lakehouse\"."
+    },
+    {
+      "id": "modeling-partition-pruning",
+      "type": "mcq",
+      "level": 2,
+      "question": "A table is partitioned by `event_date`. Which query benefits from partition pruning?",
+      "options": [
+        "`WHERE user_id = 42`",
+        "`WHERE event_date = '2026-09-01'`",
+        "`ORDER BY event_date`",
+        "`SELECT COUNT(DISTINCT user_id)`"
+      ],
+      "answer": 1,
+      "explanation": "Pruning skips whole partitions when the filter is on the partition column. Filtering on another column still scans every partition (unless clustering or indexes help)."
+    },
+    {
+      "id": "modeling-denormalized-dims",
+      "type": "mcq",
+      "level": 1,
+      "question": "Why are dimensions usually denormalized in a star schema (vs a snowflake schema)?",
+      "options": [
+        "To save storage space",
+        "Fewer joins: queries are simpler for analysts and usually faster",
+        "Because normalized tables cannot have primary keys",
+        "To prevent any duplicated value"
+      ],
+      "answer": 1,
+      "explanation": "Putting category, sub-category and brand in one product dimension costs some redundancy but saves joins. A snowflake schema normalizes dimensions into sub-tables, which saves space at the cost of more joins."
+    },
+    {
+      "id": "modeling-medallion",
+      "type": "order",
+      "level": 1,
+      "question": "Order the layers of a medallion architecture, from source to consumption.",
+      "steps": [
+        "Source systems emit data",
+        "Bronze: raw data landed as-is",
+        "Silver: cleaned, typed and deduplicated data",
+        "Gold: business-level aggregates and data marts",
+        "Dashboards and ML models consume the gold tables"
+      ],
+      "explanation": "Keeping the raw bronze layer means you can always rebuild silver and gold after fixing a bug. Each layer adds quality and business meaning."
+    },
+    {
+      "id": "modeling-scd2-load",
+      "type": "order",
+      "level": 3,
+      "question": "Order the steps of loading a Type 2 slowly changing dimension.",
+      "steps": [
+        "Compare incoming source rows with the current dimension rows to detect changes",
+        "Close the current version of changed rows (set `valid_to`, `is_current = false`)",
+        "Insert the new version of changed rows (`valid_from = now`, `is_current = true`)",
+        "Insert rows for brand-new entities",
+        "Load the facts, looking up the surrogate key valid at each event's date"
+      ],
+      "explanation": "Dimensions are loaded before facts so that every fact can find its key. Looking up the version valid at the event date is what makes historical reports stay correct."
+    }
+  ]
+}

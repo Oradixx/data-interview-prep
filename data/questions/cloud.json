@@ -1,0 +1,149 @@
+{
+  "theme": "cloud",
+  "questions": [
+    {
+      "id": "cloud-object-storage",
+      "type": "mcq",
+      "level": 1,
+      "question": "Which AWS service is the usual storage layer of a data lake?",
+      "options": [
+        "Amazon EBS",
+        "Amazon S3",
+        "Amazon RDS",
+        "Amazon EC2 instance store"
+      ],
+      "answer": 1,
+      "explanation": "S3 is object storage: virtually unlimited, cheap, durable, and readable by Spark, Athena, Glue and others. EBS is a block disk attached to one instance; RDS is a managed relational database."
+    },
+    {
+      "id": "cloud-bigquery",
+      "type": "mcq",
+      "level": 1,
+      "question": "Which Google Cloud service is a serverless data warehouse queried in SQL?",
+      "options": [
+        "Bigtable",
+        "BigQuery",
+        "Cloud SQL",
+        "Dataproc"
+      ],
+      "answer": 1,
+      "explanation": "BigQuery separates storage and compute, and you pay for storage and the data scanned (or for reserved capacity). Bigtable is a wide-column NoSQL store, Cloud SQL is managed PostgreSQL/MySQL, and Dataproc is managed Spark/Hadoop."
+    },
+    {
+      "id": "cloud-athena",
+      "type": "mcq",
+      "level": 2,
+      "question": "Which AWS service runs SQL directly on files in S3, without loading them into a database?",
+      "options": [
+        "Amazon Athena",
+        "Amazon Kinesis",
+        "AWS Lambda",
+        "Amazon DynamoDB"
+      ],
+      "answer": 0,
+      "explanation": "Athena reads the files in place, using table definitions from the Glue Data Catalog, and bills by data scanned. Partitioning and Parquet reduce both cost and latency."
+    },
+    {
+      "id": "cloud-lambda-limit",
+      "type": "mcq",
+      "level": 2,
+      "question": "Why is AWS Lambda a poor fit for a 2-hour data transformation?",
+      "options": [
+        "Lambda cannot read from S3",
+        "A Lambda invocation can run for 15 minutes at most",
+        "Lambda only supports JavaScript",
+        "Lambda cannot be scheduled"
+      ],
+      "answer": 1,
+      "explanation": "Lambda is designed for short, event-driven tasks (up to 15 minutes). Long jobs belong on containers (ECS/Fargate, Cloud Run jobs), managed Spark (EMR, Dataproc, Glue) or a batch service."
+    },
+    {
+      "id": "cloud-least-privilege",
+      "type": "mcq",
+      "level": 2,
+      "question": "A function running in AWS needs to read one S3 bucket. What is the right way to grant access?",
+      "options": [
+        "Put an admin user's access keys in its environment variables",
+        "Attach an IAM role that allows read access to that bucket only",
+        "Make the bucket public",
+        "Share the root account password"
+      ],
+      "answer": 1,
+      "explanation": "Least privilege: grant only what is needed, through a role that provides short-lived credentials automatically. Long-lived keys stored in code or configuration are the most common source of leaks."
+    },
+    {
+      "id": "cloud-multi-az",
+      "type": "mcq",
+      "level": 1,
+      "question": "Why deploy a production database across several Availability Zones?",
+      "options": [
+        "To pay less",
+        "To keep running if one data center (zone) fails",
+        "To make queries faster for users in other countries",
+        "Because it is mandatory"
+      ],
+      "answer": 1,
+      "explanation": "An Availability Zone is one or more isolated data centers within a region, with independent power and networking. Multi-AZ provides high availability with automatic failover; serving users in other countries is what multi-region setups are for."
+    },
+    {
+      "id": "cloud-archive",
+      "type": "mcq",
+      "level": 2,
+      "question": "Logs must be kept for 7 years for compliance and are almost never read. Which storage is the cheapest fit?",
+      "options": [
+        "S3 Standard",
+        "S3 Glacier Deep Archive",
+        "EBS gp3 volume",
+        "An always-on RDS instance"
+      ],
+      "answer": 1,
+      "explanation": "Archive tiers cost far less per GB but take hours to restore, which is acceptable for compliance data. Lifecycle rules can move objects there automatically after N days."
+    },
+    {
+      "id": "cloud-cost",
+      "type": "mcq",
+      "level": 2,
+      "question": "Which practices reduce the cost of a cloud data platform? Select all that apply.",
+      "options": [
+        "Partitioned, columnar files so queries scan less data",
+        "Lifecycle policies that move old data to colder storage",
+        "Autoscaling, and shutting down idle clusters",
+        "Storing everything as uncompressed CSV"
+      ],
+      "answer": [
+        0,
+        1,
+        2
+      ],
+      "explanation": "Scan-based pricing (Athena, BigQuery on demand) rewards Parquet and partitioning. Storage tiers and turning compute off when idle are the other big levers. Uncompressed CSV increases both storage and scan costs."
+    },
+    {
+      "id": "cloud-event-driven",
+      "type": "order",
+      "level": 2,
+      "question": "Order the steps of an event-driven ingestion of a daily file on AWS.",
+      "steps": [
+        "The partner uploads the file to an S3 landing prefix",
+        "An S3 event notification triggers a Lambda function",
+        "The function validates the file and writes it as Parquet to a partitioned path",
+        "The new partition is registered in the Glue Data Catalog",
+        "Analysts query it in SQL with Athena"
+      ],
+      "explanation": "No server runs while waiting: each step is triggered by the previous one. Keeping the original file in the landing prefix makes reprocessing possible."
+    },
+    {
+      "id": "cloud-least-privilege-setup",
+      "type": "order",
+      "level": 2,
+      "question": "Order the steps of giving a new pipeline least-privilege access on AWS.",
+      "steps": [
+        "List the exact resources and actions the pipeline needs",
+        "Write an IAM policy limited to them",
+        "Attach the policy to a role for the pipeline's compute",
+        "The pipeline assumes the role and gets short-lived credentials",
+        "Review the access logs (CloudTrail) and tighten the policy over time"
+      ],
+      "explanation": "Roles avoid long-lived keys entirely. Starting narrow and widening only when needed is safer than starting broad and hoping to restrict later."
+    }
+  ]
+}

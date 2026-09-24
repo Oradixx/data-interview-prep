@@ -1,0 +1,149 @@
+{
+  "theme": "llm-foundations",
+  "questions": [
+    {
+      "id": "llm-foundations-tokens",
+      "type": "mcq",
+      "level": 1,
+      "question": "Why do LLMs often struggle to count the letters in a word?",
+      "options": [
+        "They are not trained on English",
+        "They process subword tokens, not individual characters",
+        "Counting is disabled for safety reasons",
+        "Words are removed before inference"
+      ],
+      "answer": 1,
+      "explanation": "Tokenizers such as BPE split text into subword units: a word may be one or a few tokens, so the model never directly sees its letters. Tokens are also the unit of context limits and pricing."
+    },
+    {
+      "id": "llm-foundations-attention",
+      "type": "mcq",
+      "level": 2,
+      "question": "What does self-attention allow a transformer to do?",
+      "options": [
+        "Process tokens strictly one after another, like an RNN",
+        "Let each token build its representation from a weighted mix of all other tokens in the context",
+        "Remove unimportant words from the input",
+        "Store facts in a database"
+      ],
+      "answer": 1,
+      "explanation": "Each token computes queries, keys and values; attention weights say how much every other token matters to it. That captures long-range dependencies and parallelizes well, at a cost that grows quadratically with sequence length."
+    },
+    {
+      "id": "llm-foundations-context",
+      "type": "mcq",
+      "level": 1,
+      "question": "What is a model's context window?",
+      "options": [
+        "The number of documents it was trained on",
+        "The maximum number of tokens (input plus generated output) it can handle in one call",
+        "The time a conversation stays open",
+        "The number of GPUs used for inference"
+      ],
+      "answer": 1,
+      "explanation": "Anything beyond the window is simply not seen. Long contexts cost more and relevant details can get lost in them, which is one reason retrieval selects only the useful passages."
+    },
+    {
+      "id": "llm-foundations-temperature",
+      "type": "mcq",
+      "level": 1,
+      "question": "What does lowering the sampling temperature towards 0 do?",
+      "options": [
+        "Makes outputs more random and creative",
+        "Makes outputs more deterministic, concentrating on the most likely tokens",
+        "Makes the model faster",
+        "Reduces the context window"
+      ],
+      "answer": 1,
+      "explanation": "Temperature rescales the next-token probabilities: low values sharpen them (near-greedy decoding), high values flatten them. Use low temperature for extraction or classification, higher for brainstorming."
+    },
+    {
+      "id": "llm-foundations-embeddings",
+      "type": "mcq",
+      "level": 1,
+      "question": "What is a text embedding?",
+      "options": [
+        "A compressed ZIP of the text",
+        "A dense vector such that semantically similar texts are close (e.g. by cosine similarity)",
+        "The list of tokens of the text",
+        "A summary written by the model"
+      ],
+      "answer": 1,
+      "explanation": "Embeddings power semantic search, clustering and deduplication. Unlike keyword search, \"car\" and \"vehicle\" end up close to each other."
+    },
+    {
+      "id": "llm-foundations-rag-vs-ft",
+      "type": "mcq",
+      "level": 2,
+      "question": "An assistant must answer from internal documents that change every week, and cite its sources. Which approach fits best?",
+      "options": [
+        "Fine-tune the model every week",
+        "Retrieval-augmented generation (RAG) over the documents",
+        "A longer system prompt with all the documents pasted in",
+        "Raise the temperature"
+      ],
+      "answer": 1,
+      "explanation": "RAG keeps knowledge outside the model: update the index, not the weights, and show the retrieved passages as sources. Fine-tuning is better suited to teaching a style, format or task than to injecting fast-changing facts."
+    },
+    {
+      "id": "llm-foundations-lora",
+      "type": "mcq",
+      "level": 3,
+      "question": "What does LoRA (low-rank adaptation) change in fine-tuning?",
+      "options": [
+        "It retrains all the weights with a lower learning rate",
+        "It freezes the base weights and trains small low-rank matrices added to some layers",
+        "It removes layers to make the model smaller",
+        "It replaces fine-tuning with prompting"
+      ],
+      "answer": 1,
+      "explanation": "Only a tiny fraction of parameters is trained, so memory and storage costs drop and one base model can serve several adapters. QLoRA combines it with a quantized base model."
+    },
+    {
+      "id": "llm-foundations-hallucination",
+      "type": "mcq",
+      "level": 2,
+      "question": "Which measures reduce hallucinations in an LLM application? Select all that apply.",
+      "options": [
+        "Grounding answers in retrieved sources and asking for citations",
+        "Instructing the model to say it does not know when the context lacks the answer",
+        "Raising the temperature",
+        "Increasing the maximum output length"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Grounding plus explicit permission to abstain are the main levers, and should be checked with an evaluation set. Higher temperature makes sampling more random, and longer outputs give more room for errors."
+    },
+    {
+      "id": "llm-foundations-generation",
+      "type": "order",
+      "level": 2,
+      "question": "Order how a decoder-only LLM generates text.",
+      "steps": [
+        "Tokenize the prompt",
+        "Map each token to its embedding",
+        "Transformer layers compute contextual representations",
+        "The output layer gives a probability distribution over the next token",
+        "Sample a token, append it to the sequence, and repeat until a stop condition"
+      ],
+      "explanation": "Generation is autoregressive: one token at a time, each conditioned on everything before it. Caching the attention keys and values (the KV cache) avoids recomputing the prefix at every step."
+    },
+    {
+      "id": "llm-foundations-finetune",
+      "type": "order",
+      "level": 3,
+      "question": "Order the steps of a fine-tuning project.",
+      "steps": [
+        "Define the task and build an evaluation set first",
+        "Measure a prompting baseline on it",
+        "Collect and clean training examples in the model's chat format",
+        "Fine-tune (e.g. with LoRA) on the base model",
+        "Compare against the baseline on the evaluation set",
+        "Deploy and monitor"
+      ],
+      "explanation": "Without an evaluation set and a prompting baseline, you cannot tell whether fine-tuning was worth its cost. Often better prompts or RAG are enough."
+    }
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "theme": "cicd-git",
+  "questions": [
+    {
+      "id": "cicd-git-rebase",
+      "type": "mcq",
+      "level": 2,
+      "question": "What does `git rebase main` do on a feature branch, and when should you avoid it?",
+      "options": [
+        "It merges main into the branch with a merge commit; avoid it on small branches",
+        "It replays the branch's commits on top of main, rewriting them; avoid it on branches others have already pulled",
+        "It deletes the branch; avoid it always",
+        "It squashes all commits; avoid it before a release"
+      ],
+      "answer": 1,
+      "explanation": "Rebasing gives a linear history but creates new commit hashes. If teammates built on the old commits, their history diverges, so only rebase commits that are yours alone."
+    },
+    {
+      "id": "cicd-git-revert",
+      "type": "mcq",
+      "level": 1,
+      "question": "A bad commit is already on the shared `main` branch. What is the safe way to undo it?",
+      "options": [
+        "`git reset --hard` then force-push",
+        "`git revert <commit>`, which creates a new commit undoing it",
+        "Delete the repository and push again",
+        "Edit the files by hand without committing"
+      ],
+      "answer": 1,
+      "explanation": "`revert` adds history instead of rewriting it, so nobody else's clone breaks. `reset` plus force-push rewrites shared history."
+    },
+    {
+      "id": "cicd-git-delivery-deployment",
+      "type": "mcq",
+      "level": 1,
+      "question": "What is the difference between continuous delivery and continuous deployment?",
+      "options": [
+        "None",
+        "Delivery keeps every change deployable, with a manual release decision; deployment ships every change that passes the pipeline to production automatically",
+        "Delivery is for front-end, deployment for back-end",
+        "Deployment has no tests"
+      ],
+      "answer": 1,
+      "explanation": "Both rely on an automated pipeline. The difference is the last step: a human approval (delivery) or none (deployment)."
+    },
+    {
+      "id": "cicd-git-leaked-key",
+      "type": "mcq",
+      "level": 2,
+      "question": "You pushed an AWS access key to a public repository. What do you do first?",
+      "options": [
+        "Delete the file in a new commit",
+        "Revoke / rotate the key immediately, then clean the history",
+        "Make the repository private",
+        "Nothing if no one starred the repository"
+      ],
+      "answer": 1,
+      "explanation": "Public repositories are scanned by bots within minutes, and the key stays in the git history and in forks. Consider it compromised: revoke it first, then check for unexpected usage and clean up. Secrets belong in a secret manager or CI secrets."
+    },
+    {
+      "id": "cicd-git-lockfile",
+      "type": "mcq",
+      "level": 1,
+      "question": "Why commit a lockfile (`uv.lock`, `poetry.lock`, `package-lock.json`)?",
+      "options": [
+        "It makes installs slower but safer",
+        "It pins the exact version of every dependency, including transitive ones, so every machine and CI builds the same environment",
+        "It is required to publish on GitHub",
+        "It stores your passwords"
+      ],
+      "answer": 1,
+      "explanation": "Version ranges in `pyproject.toml` can resolve differently from one day to the next. The lockfile makes builds reproducible, and tools like Dependabot update it deliberately."
+    },
+    {
+      "id": "cicd-git-bisect",
+      "type": "mcq",
+      "level": 3,
+      "question": "A bug appeared somewhere in the last 200 commits. Which git command finds the culprit efficiently?",
+      "options": [
+        "`git blame`",
+        "`git bisect`",
+        "`git log --oneline`",
+        "`git stash`"
+      ],
+      "answer": 1,
+      "explanation": "`git bisect` does a binary search: you mark a good and a bad commit, then test the commits it checks out. It finds the culprit in about log2(200) ≈ 8 steps, and can be fully automated with `git bisect run`."
+    },
+    {
+      "id": "cicd-git-ci-content",
+      "type": "mcq",
+      "level": 1,
+      "question": "Which steps belong in the CI pipeline of a Python service? Select all that apply.",
+      "options": [
+        "Lint and format checks",
+        "Unit tests",
+        "Building the container image",
+        "SSH into the production server to pull the latest code"
+      ],
+      "answer": [
+        0,
+        1,
+        2
+      ],
+      "explanation": "CI verifies and packages every change automatically. Manually pulling code on a server is exactly what a CD pipeline replaces, because it is neither reproducible nor traceable."
+    },
+    {
+      "id": "cicd-git-trunk",
+      "type": "mcq",
+      "level": 2,
+      "question": "What characterizes trunk-based development?",
+      "options": [
+        "Long-lived feature branches merged at the end of each quarter",
+        "Short-lived branches merged into main frequently, with unfinished features hidden behind feature flags",
+        "No branches and no code review",
+        "One branch per environment"
+      ],
+      "answer": 1,
+      "explanation": "Small, frequent merges keep conflicts small and main always releasable. It is the usual partner of continuous delivery."
+    },
+    {
+      "id": "cicd-git-pr-flow",
+      "type": "order",
+      "level": 1,
+      "question": "Order the steps of a typical pull request workflow.",
+      "steps": [
+        "Create a branch from an up-to-date main",
+        "Commit changes with clear messages",
+        "Push the branch and open a pull request",
+        "CI runs the checks and a teammate reviews",
+        "Merge into main",
+        "The pipeline deploys the new version"
+      ],
+      "explanation": "The pull request is the quality gate: automated checks and human review happen before main changes, so main stays deployable."
+    },
+    {
+      "id": "cicd-git-rebase-conflict",
+      "type": "order",
+      "level": 2,
+      "question": "Order the steps of updating your feature branch when the rebase hits a conflict.",
+      "steps": [
+        "`git fetch` then `git rebase origin/main`",
+        "Git stops on the conflicting commit",
+        "Edit the files to resolve the conflict markers",
+        "`git add` the resolved files",
+        "`git rebase --continue`",
+        "Run the tests, then `git push --force-with-lease`"
+      ],
+      "explanation": "`--force-with-lease` refuses to overwrite the remote branch if someone else pushed to it in the meantime, unlike a plain `--force`."
+    }
+  ]
+}

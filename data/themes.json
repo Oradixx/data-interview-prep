@@ -1,0 +1,22 @@
+{
+  "groups": [
+    { "id": "data-eng", "title": "Data Engineering" },
+    { "id": "ml", "title": "ML & MLOps" },
+    { "id": "devops", "title": "DevOps & Cloud" },
+    { "id": "llm", "title": "LLMs & GenAI" }
+  ],
+  "themes": [
+    { "id": "sql", "group": "data-eng", "title": "SQL", "description": "Execution order, joins, NULLs, window functions, indexes and query tuning." },
+    { "id": "modeling", "group": "data-eng", "title": "Data modeling & warehousing", "description": "Star schema, grain, slowly changing dimensions, medallion layers, lakehouse formats." },
+    { "id": "pipelines", "group": "data-eng", "title": "Pipelines & orchestration", "description": "ETL vs ELT, idempotency, incremental loads, CDC, Airflow, dbt, data quality." },
+    { "id": "spark", "group": "data-eng", "title": "Spark & distributed processing", "description": "Lazy evaluation, shuffles, broadcast joins, skew, partitions, Parquet." },
+    { "id": "streaming", "group": "data-eng", "title": "Kafka & streaming", "description": "Partitions, consumer groups, delivery semantics, event time, windows." },
+    { "id": "ml-fundamentals", "group": "ml", "title": "ML fundamentals", "description": "Leakage, metrics, imbalance, overfitting, validation, tree ensembles, SHAP." },
+    { "id": "mlops", "group": "ml", "title": "MLOps", "description": "Experiment tracking, registry, drift, training-serving skew, deployment strategies." },
+    { "id": "containers", "group": "devops", "title": "Docker & Kubernetes", "description": "Images, layers, multi-stage builds, volumes, pods, services, probes, rollouts." },
+    { "id": "cicd-git", "group": "devops", "title": "Git & CI/CD", "description": "Rebase vs merge, revert, lockfiles, secrets, delivery vs deployment, PR workflow." },
+    { "id": "cloud", "group": "devops", "title": "Cloud (AWS / GCP)", "description": "Object storage, serverless limits, IAM, managed data services, availability, cost." },
+    { "id": "llm-foundations", "group": "llm", "title": "LLM foundations", "description": "Tokens, attention, context window, sampling, embeddings, fine-tuning vs RAG, LoRA." },
+    { "id": "rag-agents", "group": "llm", "title": "RAG & agents", "description": "Chunking, hybrid search, reranking, RAG evaluation, tool calling, prompt injection." }
+  ]
+}

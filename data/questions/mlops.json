@@ -1,0 +1,150 @@
+{
+  "theme": "mlops",
+  "questions": [
+    {
+      "id": "mlops-tracking",
+      "type": "mcq",
+      "level": 1,
+      "question": "What does an experiment tracker such as MLflow Tracking record for each run?",
+      "options": [
+        "Only the final model file",
+        "Parameters, metrics, artifacts (models, plots) and metadata such as the code version",
+        "The production traffic of the model",
+        "The cloud bill of the training"
+      ],
+      "answer": 1,
+      "explanation": "Logging every run lets you compare experiments and find which parameters and code produced a given model months later."
+    },
+    {
+      "id": "mlops-registry",
+      "type": "mcq",
+      "level": 2,
+      "question": "What is a model registry for?",
+      "options": [
+        "Storing training data",
+        "Versioning models and managing their promotion (staging, production) with an audit trail",
+        "Running hyperparameter searches",
+        "Serving predictions at low latency"
+      ],
+      "answer": 1,
+      "explanation": "The registry is the source of truth for which model version is in production, which makes promotion and rollback explicit and traceable."
+    },
+    {
+      "id": "mlops-concept-drift",
+      "type": "mcq",
+      "level": 2,
+      "question": "The distribution of the input features is stable, but after an interest rate change the same features lead to different house prices. What is this?",
+      "options": [
+        "Data drift",
+        "Concept drift",
+        "Training-serving skew",
+        "Label leakage"
+      ],
+      "answer": 1,
+      "explanation": "Data drift is a change in P(X), the inputs. Concept drift is a change in P(y | X), the relationship the model learned. Concept drift is only visible once you get fresh labels, so it requires retraining."
+    },
+    {
+      "id": "mlops-skew",
+      "type": "mcq",
+      "level": 3,
+      "question": "A model scores well offline but badly in production. You find that `days_since_last_order` is computed in SQL for training and in Python, slightly differently, at serving time. What is this problem called?",
+      "options": [
+        "Concept drift",
+        "Training-serving skew",
+        "Overfitting",
+        "Cold start"
+      ],
+      "answer": 1,
+      "explanation": "Features must be computed by the same code for training and serving. Feature stores, or shared feature libraries, exist largely to prevent this skew."
+    },
+    {
+      "id": "mlops-batch-online",
+      "type": "mcq",
+      "level": 1,
+      "question": "Every night, you score all customers for tomorrow's marketing campaign. Which inference mode fits?",
+      "options": [
+        "Online inference behind a REST API",
+        "Batch inference, writing the scores to a table",
+        "Streaming inference on Kafka",
+        "Inference on the user's device"
+      ],
+      "answer": 1,
+      "explanation": "No one waits for a real-time answer, so a scheduled batch job is simpler, cheaper and easier to monitor. Online serving is for requests that need an answer within milliseconds."
+    },
+    {
+      "id": "mlops-shadow",
+      "type": "mcq",
+      "level": 2,
+      "question": "Which deployment strategy tests a new model on live traffic with zero impact on users?",
+      "options": [
+        "Canary release",
+        "Shadow deployment",
+        "Blue-green deployment",
+        "Big-bang replacement"
+      ],
+      "answer": 1,
+      "explanation": "In shadow mode, the new model receives a copy of the requests and its predictions are logged but never returned. A canary serves real users with a small share of traffic, so a bad model affects them."
+    },
+    {
+      "id": "mlops-reproducibility",
+      "type": "mcq",
+      "level": 2,
+      "question": "What do you need to reproduce a training run exactly? Select all that apply.",
+      "options": [
+        "The code version (git commit)",
+        "The exact version of the training data",
+        "Locked dependency versions and the environment",
+        "The URL of the production endpoint"
+      ],
+      "answer": [
+        0,
+        1,
+        2
+      ],
+      "explanation": "Code, data and environment (plus random seeds) define a run. Tools like DVC or lakehouse time travel version the data, and lockfiles or container images version the environment."
+    },
+    {
+      "id": "mlops-monitor-no-labels",
+      "type": "mcq",
+      "level": 3,
+      "question": "Ground-truth labels arrive only 3 months after prediction. What can you monitor in the meantime?",
+      "options": [
+        "Nothing until the labels arrive",
+        "The distributions of input features and predictions, and data quality (nulls, ranges)",
+        "Only the model's training accuracy",
+        "The number of commits on the repository"
+      ],
+      "answer": 1,
+      "explanation": "Changes in input or prediction distributions (measured with PSI, KL divergence or statistical tests) are early signals that performance may drop, well before labels confirm it."
+    },
+    {
+      "id": "mlops-lifecycle",
+      "type": "order",
+      "level": 2,
+      "question": "Order the stages of an automated ML delivery pipeline.",
+      "steps": [
+        "Commit code and configuration",
+        "CI runs unit tests and data validation",
+        "Train the model and log the run to the tracker",
+        "Evaluate against the current production model",
+        "Register the model and deploy it progressively",
+        "Monitor drift and performance, and trigger retraining when needed"
+      ],
+      "explanation": "The key gate is comparing with the production model on the same evaluation data: a new model is promoted only if it is better, and monitoring closes the loop."
+    },
+    {
+      "id": "mlops-drift-response",
+      "type": "order",
+      "level": 3,
+      "question": "A drift alert fires on a production model. Order your response.",
+      "steps": [
+        "Check that it is not an upstream data bug (schema change, broken feature)",
+        "Identify which features drifted, and by how much",
+        "Estimate the impact on predictions and business metrics (and on accuracy if labels exist)",
+        "Retrain on recent data and evaluate against the production model",
+        "Deploy progressively and keep monitoring"
+      ],
+      "explanation": "Many drift alerts are pipeline bugs, not changes in the world, and retraining on broken data makes things worse. Only retrain once the cause and the impact are understood."
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "theme": "ml-fundamentals",
+  "questions": [
+    {
+      "id": "ml-fundamentals-leakage",
+      "type": "mcq",
+      "level": 2,
+      "question": "Which of these is data leakage?",
+      "options": [
+        "Fitting a `StandardScaler` on the whole dataset before the train/test split",
+        "Using cross-validation on the training set",
+        "Removing duplicated rows before the split",
+        "Tuning hyperparameters on a validation set"
+      ],
+      "answer": 0,
+      "explanation": "The scaler learns the test set's mean and variance, so information from the test set leaks into training and scores become optimistic. Fit preprocessing on the training data only, ideally inside a `Pipeline`."
+    },
+    {
+      "id": "ml-fundamentals-recall",
+      "type": "mcq",
+      "level": 1,
+      "question": "For fraud detection, where missing a fraud is far more costly than a false alarm, which metric should you prioritize?",
+      "options": [
+        "Precision",
+        "Recall",
+        "Accuracy",
+        "R²"
+      ],
+      "answer": 1,
+      "explanation": "Recall = TP / (TP + FN): the share of real frauds you catch. Precision = TP / (TP + FP) matters more when false alarms are expensive. In practice you choose a decision threshold that balances both."
+    },
+    {
+      "id": "ml-fundamentals-imbalance",
+      "type": "mcq",
+      "level": 1,
+      "question": "99% of transactions are legitimate. A model that always predicts \"legitimate\" reaches 99% accuracy. What should you look at instead?",
+      "options": [
+        "Accuracy on the training set",
+        "Precision, recall, F1 or PR-AUC on the minority class",
+        "Mean squared error",
+        "The number of features"
+      ],
+      "answer": 1,
+      "explanation": "Accuracy is dominated by the majority class. Metrics focused on the positive class (recall, precision, F1, precision-recall AUC) show whether the model actually finds the rare cases."
+    },
+    {
+      "id": "ml-fundamentals-overfitting",
+      "type": "mcq",
+      "level": 1,
+      "question": "Training loss keeps falling while validation loss rises. Which actions help? Select all that apply.",
+      "options": [
+        "Get more training data",
+        "Add regularization (L2, dropout, shallower trees)",
+        "Use early stopping",
+        "Train for more epochs"
+      ],
+      "answer": [
+        0,
+        1,
+        2
+      ],
+      "explanation": "The model is overfitting: it memorizes the training set. More data, regularization and early stopping all reduce variance. More epochs make it worse."
+    },
+    {
+      "id": "ml-fundamentals-time-cv",
+      "type": "mcq",
+      "level": 2,
+      "question": "How should you validate a model that forecasts next week's sales?",
+      "options": [
+        "Random k-fold cross-validation",
+        "Time-based splits: train on the past, validate on the period right after (e.g. `TimeSeriesSplit`)",
+        "Leave-one-out cross-validation",
+        "Validate on the training set"
+      ],
+      "answer": 1,
+      "explanation": "Random folds let the model train on the future and predict the past, which leaks information and inflates scores. Walk-forward validation reproduces how the model will actually be used."
+    },
+    {
+      "id": "ml-fundamentals-underfit",
+      "type": "mcq",
+      "level": 2,
+      "question": "A model scores poorly on both the training and validation sets. What is the likely diagnosis?",
+      "options": [
+        "Overfitting (high variance)",
+        "Underfitting (high bias): the model is too simple or the features too weak",
+        "Data leakage",
+        "A perfect model"
+      ],
+      "answer": 1,
+      "explanation": "If it cannot even fit the training data, adding regularization will not help. Try a more expressive model, better features, or check the labels."
+    },
+    {
+      "id": "ml-fundamentals-rf-boosting",
+      "type": "mcq",
+      "level": 2,
+      "question": "What is the key difference between a random forest and gradient boosting?",
+      "options": [
+        "Random forests use linear models; boosting uses trees",
+        "A random forest averages independent trees trained on bootstrap samples; boosting trains trees sequentially, each correcting the previous errors",
+        "Boosting cannot be used for classification",
+        "They are the same algorithm with different names"
+      ],
+      "answer": 1,
+      "explanation": "Bagging (random forest) mainly reduces variance and is robust with little tuning. Boosting (XGBoost, LightGBM) mainly reduces bias and is often more accurate, but more sensitive to hyperparameters and overfitting."
+    },
+    {
+      "id": "ml-fundamentals-shap",
+      "type": "mcq",
+      "level": 3,
+      "question": "What does a SHAP value represent for one prediction?",
+      "options": [
+        "The global importance of a feature over the whole dataset",
+        "How much a feature pushed this prediction above or below the model's average prediction",
+        "The correlation between a feature and the target",
+        "The probability that the prediction is correct"
+      ],
+      "answer": 1,
+      "explanation": "SHAP values come from Shapley values in game theory: for a given prediction, they add up to (prediction − expected value). Averaging their absolute values over a dataset gives a global importance."
+    },
+    {
+      "id": "ml-fundamentals-workflow",
+      "type": "order",
+      "level": 1,
+      "question": "Order the steps of a sound machine learning project.",
+      "steps": [
+        "Frame the business problem and choose the metric",
+        "Collect the data and split train / validation / test",
+        "Build a simple baseline",
+        "Iterate on features and models using the validation set",
+        "Evaluate once on the held-out test set",
+        "Deploy and monitor"
+      ],
+      "explanation": "A baseline tells you whether complexity pays off. The test set is used only once at the end; using it during iterations would turn it into a second validation set and bias the final score."
+    },
+    {
+      "id": "ml-fundamentals-kfold",
+      "type": "order",
+      "level": 1,
+      "question": "Order the steps of k-fold cross-validation used to choose a model.",
+      "steps": [
+        "Split the training data into k folds",
+        "For each fold, train on the other k − 1 folds",
+        "Evaluate on the held-out fold",
+        "Average the k scores (and look at their spread)",
+        "Retrain the chosen model on all the training data"
+      ],
+      "explanation": "Every sample is used for validation exactly once, which gives a more stable estimate than a single split. The spread of the k scores shows how sensitive the model is to the data."
+    }
+  ]
+}
