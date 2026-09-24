@@ -12,6 +12,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/neon.css">
+<script>
+  // Apply the saved style before first paint (no flash).
+  try { if (JSON.parse(localStorage.getItem("dip.skin")) === "neon") document.documentElement.dataset.skin = "neon"; } catch (e) {}
+</script>
 </head>
 <body>
 <header class="top">
@@ -20,6 +25,10 @@
     <nav>
       <a class="muted-link hide-sm" href="https://oradixx.github.io/">by Clément Vurpillot</a>
       <a class="muted-link hide-sm" href="https://github.com/Oradixx/data-interview-prep">source</a>
+      <button class="skin-btn" id="skinBtn" type="button" aria-label="Switch visual style">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg>
+        <span id="skinLabel">Neon</span>
+      </button>
       <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle dark mode">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
       </button>

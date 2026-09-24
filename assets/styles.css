@@ -210,3 +210,6 @@ code {
   font: 500 .88em "JetBrains Mono", ui-monospace, monospace; padding: .08em .35em; border-radius: 5px;
   background: var(--accent-soft); color: var(--ink);
 }
+
+.streak { font-size: 13px; white-space: nowrap; min-width: 0; }
+@media (max-width: 420px) { .skin-btn span { display: none; } .skin-btn { padding: 0 10px; } }

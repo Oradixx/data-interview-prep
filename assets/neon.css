@@ -1,0 +1,149 @@
+/* ------------------------------------------------------------------
+   "Neon" skin — enabled with <html data-skin="neon">.
+   Always dark; overrides the clean skin's tokens and adds glow,
+   glass cards, an animated aurora background and micro-animations.
+   ------------------------------------------------------------------ */
+:root[data-skin="neon"] {
+  --bg: #07061a;
+  --surface: rgba(255, 255, 255, 0.045);
+  --ink: #eef0ff;
+  --muted: #a3a8c9;
+  --line: rgba(255, 255, 255, 0.10);
+  --accent: #22e4ff;
+  --accent-soft: rgba(34, 228, 255, 0.12);
+  --accent-2: #a855f7;
+  --accent-3: #ff4fd8;
+  --good: #3dffa8;
+  --good-soft: rgba(61, 255, 168, 0.10);
+  --bad: #ff5c8a;
+  --bad-soft: rgba(255, 92, 138, 0.10);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+  --grad: linear-gradient(100deg, #22e4ff 0%, #a855f7 50%, #ff4fd8 100%);
+  color-scheme: dark;
+}
+
+/* aurora background + faint grid */
+[data-skin="neon"] body { background: var(--bg); min-height: 100vh; }
+[data-skin="neon"] body::before,
+[data-skin="neon"] body::after {
+  content: ""; position: fixed; inset: -20vmax; z-index: -1; pointer-events: none;
+}
+[data-skin="neon"] body::before {
+  background:
+    radial-gradient(40vmax 40vmax at 15% 20%, rgba(34, 228, 255, 0.22), transparent 60%),
+    radial-gradient(35vmax 35vmax at 85% 15%, rgba(168, 85, 247, 0.25), transparent 60%),
+    radial-gradient(45vmax 45vmax at 60% 90%, rgba(255, 79, 216, 0.16), transparent 60%);
+  filter: blur(30px);
+  animation: aurora 22s ease-in-out infinite alternate;
+}
+[data-skin="neon"] body::after {
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+}
+@keyframes aurora {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(4vmax, -3vmax, 0) rotate(8deg); }
+  100% { transform: translate3d(-3vmax, 3vmax, 0) rotate(-6deg); }
+}
+
+/* header */
+[data-skin="neon"] header.top { background: rgba(7, 6, 26, 0.55); }
+[data-skin="neon"] .brand span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+[data-skin="neon"] #themeBtn { display: none; }
+
+/* headings with animated gradient */
+[data-skin="neon"] h1,
+[data-skin="neon"] .score {
+  background: var(--grad); background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: shine 6s linear infinite;
+}
+@keyframes shine { to { background-position: 200% center; } }
+[data-skin="neon"] .eyebrow { color: var(--accent); }
+
+/* glass cards */
+[data-skin="neon"] .theme,
+[data-skin="neon"] .option,
+[data-skin="neon"] .step,
+[data-skin="neon"] .feedback,
+[data-skin="neon"] details,
+[data-skin="neon"] .seg,
+[data-skin="neon"] .btn:not(.primary) {
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+[data-skin="neon"] .theme { transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+[data-skin="neon"] .theme:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px rgba(34, 228, 255, .25), 0 12px 40px rgba(34, 228, 255, .12); }
+[data-skin="neon"] .theme[aria-pressed="true"] {
+  border-color: transparent;
+  background:
+    linear-gradient(rgba(14, 12, 40, 0.92), rgba(14, 12, 40, 0.92)) padding-box,
+    var(--grad) border-box;
+  border: 1px solid transparent; box-shadow: 0 0 24px rgba(168, 85, 247, .18);
+}
+[data-skin="neon"] .theme[aria-pressed="true"] .check { background: var(--grad); border-color: transparent; }
+[data-skin="neon"] .meter i,
+[data-skin="neon"] .bar i { background: var(--grad); box-shadow: 0 0 12px rgba(34, 228, 255, .6); }
+[data-skin="neon"] .launch { background: rgba(7, 6, 26, 0.6); }
+
+/* buttons */
+[data-skin="neon"] .btn.primary {
+  background: var(--grad); background-size: 160% auto; color: #07061a; border: 0; font-weight: 600;
+  box-shadow: 0 0 22px rgba(168, 85, 247, .45); transition: background-position .4s ease, box-shadow .2s ease, transform .15s ease;
+}
+[data-skin="neon"] .btn.primary:hover:not(:disabled) { background-position: right center; box-shadow: 0 0 34px rgba(255, 79, 216, .55); transform: translateY(-1px); }
+[data-skin="neon"] .seg button[aria-pressed="true"] { background: var(--grad); color: #07061a; }
+
+/* progress bar shimmer */
+[data-skin="neon"] .bar i { position: relative; overflow: hidden; }
+[data-skin="neon"] .bar i::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .55), transparent);
+  transform: translateX(-100%); animation: sweep 2.2s ease-in-out infinite;
+}
+@keyframes sweep { to { transform: translateX(100%); } }
+
+/* answers */
+[data-skin="neon"] .option { transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease; }
+[data-skin="neon"] .option:hover:not(:disabled) { transform: translateX(3px); border-color: rgba(34, 228, 255, .5); }
+[data-skin="neon"] .option[aria-pressed="true"] { box-shadow: inset 0 0 0 1px var(--accent), 0 0 20px rgba(34, 228, 255, .25); }
+[data-skin="neon"] .option.right,
+[data-skin="neon"] .step.right { box-shadow: inset 0 0 0 1px var(--good), 0 0 24px rgba(61, 255, 168, .28); animation: pop .35s ease; }
+[data-skin="neon"] .option.wrong,
+[data-skin="neon"] .step.wrong { box-shadow: inset 0 0 0 1px var(--bad), 0 0 24px rgba(255, 92, 138, .25); animation: shake .4s ease; }
+[data-skin="neon"] .option .key, [data-skin="neon"] .option.right .key, [data-skin="neon"] .option.wrong .key { color: #07061a; }
+[data-skin="neon"] .option:not([aria-pressed="true"]):not(.right):not(.wrong) .key { color: var(--muted); }
+[data-skin="neon"] .step.dragging { box-shadow: 0 0 0 1px var(--accent), 0 16px 40px rgba(34, 228, 255, .25); transform: scale(1.02); }
+[data-skin="neon"] .feedback.good { box-shadow: 0 0 30px rgba(61, 255, 168, .12); }
+[data-skin="neon"] .feedback.bad { box-shadow: 0 0 30px rgba(255, 92, 138, .12); }
+@keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.025); } 100% { transform: scale(1); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
+
+[data-skin="neon"] code { background: rgba(34, 228, 255, .12); color: #bff6ff; }
+[data-skin="neon"] .pill { background: rgba(168, 85, 247, .18); color: #e3c8ff; }
+[data-skin="neon"] .streak { color: #ffb86b; text-shadow: 0 0 12px rgba(255, 150, 60, .6); }
+
+/* particle burst on a correct answer */
+.burst { position: fixed; width: 8px; height: 8px; border-radius: 2px; pointer-events: none; z-index: 50;
+  animation: burst .9s cubic-bezier(.2, .7, .3, 1) forwards; }
+@keyframes burst {
+  to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+}
+
+/* style switch button (both skins) */
+.skin-btn {
+  display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 13px; white-space: nowrap;
+}
+.skin-btn svg { width: 15px; height: 15px; }
+[data-skin="neon"] .skin-btn { border-color: rgba(168, 85, 247, .5); box-shadow: 0 0 14px rgba(168, 85, 247, .25); }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-skin="neon"] body::before, [data-skin="neon"] h1, [data-skin="neon"] .score,
+  [data-skin="neon"] .bar i::after, [data-skin="neon"] .option.right, [data-skin="neon"] .option.wrong,
+  [data-skin="neon"] .step.right, [data-skin="neon"] .step.wrong { animation: none; }
+  .burst { display: none; }
+}

@@ -15,6 +15,7 @@ interviews, each answer explained.
 - **An explanation for every answer:** the *why*, not just the right option.
 - **Progress per theme** and a **"review mistakes"** mode, saved in your browser.
 - Keyboard shortcuts (`1`–`6` to pick, `Enter` to check), dark mode, works on mobile.
+- **Two visual styles**, switched from the header: *Clean* (light/dark) and *Neon* (animated aurora, glass cards, streak counter and a particle burst on correct answers). Animations are disabled when the system asks for reduced motion.
 
 ## How it works
 
@@ -28,7 +29,8 @@ data/
 assets/
 ├── quiz.js                  # pure logic (scoring, shuffling, sessions) — unit-tested
 ├── app.js                   # rendering and interactions
-└── styles.css
+├── styles.css               # clean style (light / dark)
+└── neon.css                 # neon style
 scripts/validate.mjs         # checks every question file (run in CI)
 tests/quiz.test.mjs          # node --test
 ```

@@ -61,7 +61,11 @@ const state = {
   index: 0,
   results: [],
   current: null, // per-question UI state
+  streak: 0,
 };
+
+const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isNeon = () => document.documentElement.dataset.skin === "neon";
 
 const themeById = (id) => state.themes.find((t) => t.id === id);
 
@@ -196,6 +200,7 @@ function start({ onlyIds = null, questions = null } = {}) {
   if (!state.session.length) return;
   state.index = 0;
   state.results = [];
+  state.streak = 0;
   renderQuestion();
   window.scrollTo(0, 0);
 }
@@ -248,6 +253,7 @@ function renderQuestion() {
     <section class="quiz">
       <div class="progress mono">
         <span>${state.index + 1} / ${n}</span>
+        <span class="streak" id="streak">${state.streak >= 2 ? `🔥 ${state.streak}` : ""}</span>
         <span class="bar"><i style="width:${(100 * state.index) / n}%"></i></span>
         <button class="link-btn" id="quitBtn">Quit</button>
       </div>
@@ -378,6 +384,13 @@ function check() {
     if (!correct) detail = `<ol>${q.steps.map((s) => `<li>${fmt(s)}</li>`).join("")}</ol>`;
   }
 
+  state.streak = correct ? state.streak + 1 : 0;
+  app.querySelector("#streak").textContent = state.streak >= 2 ? `🔥 ${state.streak}` : "";
+  if (correct && isNeon() && !reducedMotion()) {
+    const anchor = app.querySelector(".option.right, .steps") ?? app.querySelector("#mainBtn");
+    burst(anchor.getBoundingClientRect());
+  }
+
   const result = { id: q.id, theme: q.theme, correct };
   state.results.push(result);
   state.progress = updateProgress(state.progress, [result]);
@@ -405,6 +418,38 @@ function next() {
   } else {
     renderResults();
   }
+}
+
+// ---------------------------------------------------------------- effects (neon skin)
+function burst(rect) {
+  const colors = ["#22e4ff", "#a855f7", "#ff4fd8", "#3dffa8", "#ffe066"];
+  const x = rect.left + rect.width / 2;
+  const y = rect.top + Math.min(rect.height, 60) / 2;
+  for (let i = 0; i < 26; i++) {
+    const p = document.createElement("span");
+    const angle = (Math.PI * 2 * i) / 26 + Math.random() * 0.3;
+    const dist = 60 + Math.random() * 90;
+    p.className = "burst";
+    p.style.left = `${x}px`;
+    p.style.top = `${y}px`;
+    p.style.background = colors[i % colors.length];
+    p.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
+    p.style.setProperty("--dy", `${Math.sin(angle) * dist}px`);
+    p.style.setProperty("--rot", `${Math.random() * 360}deg`);
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 950);
+  }
+}
+
+function countUp(el, target) {
+  if (!isNeon() || reducedMotion() || target === 0) return;
+  const start = performance.now();
+  const tick = (now) => {
+    const t = Math.min(1, (now - start) / 700);
+    el.firstChild.textContent = String(Math.round(target * (1 - (1 - t) ** 3)));
+    if (t < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }
 
 // ---------------------------------------------------------------- results
@@ -461,6 +506,7 @@ function renderResults() {
       }
     </section>`;
 
+  countUp(app.querySelector(".score"), s.correct);
   app.querySelector("#retryBtn")?.addEventListener("click", () => start({ questions: missed }));
   app.querySelector("#againBtn").addEventListener("click", () => start());
   app.querySelector("#homeBtn").addEventListener("click", () => {
@@ -496,6 +542,20 @@ document.addEventListener("keydown", (e) => {
     const current = root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     root.dataset.theme = current === "dark" ? "light" : "dark";
     store.set("dip.theme", root.dataset.theme);
+  });
+})();
+
+// ---------------------------------------------------------------- style (skin) toggle
+(function skinToggle() {
+  const root = document.documentElement;
+  const label = document.getElementById("skinLabel");
+  const sync = () => (label.textContent = isNeon() ? "Clean" : "Neon");
+  sync();
+  document.getElementById("skinBtn").addEventListener("click", () => {
+    if (isNeon()) delete root.dataset.skin;
+    else root.dataset.skin = "neon";
+    store.set("dip.skin", isNeon() ? "neon" : "clean");
+    sync();
   });
 })();
 
