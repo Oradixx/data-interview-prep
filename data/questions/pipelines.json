@@ -69,7 +69,7 @@
         "It fails because `start_date` is in the past"
       ],
       "answer": 1,
-      "explanation": "Catchup creates one run per data interval between `start_date` and now. That is useful for backfills, but it can trigger a flood of runs by surprise; set `catchup=False` if you only want future runs."
+      "explanation": "Catchup creates one run per data interval not yet run since `start_date`. That is useful for backfills, but it can trigger a flood of runs by surprise. Since Airflow 3.0, `catchup` defaults to `False` (`[scheduler] catchup_by_default`): the scheduler then creates a run only for the latest interval."
     },
     {
       "id": "pipelines-dbt-ref",

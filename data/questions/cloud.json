@@ -27,7 +27,7 @@
         "Dataproc"
       ],
       "answer": 1,
-      "explanation": "BigQuery separates storage and compute, and you pay for storage and the data scanned (or for reserved capacity). Bigtable is a wide-column NoSQL store, Cloud SQL is managed PostgreSQL/MySQL, and Dataproc is managed Spark/Hadoop."
+      "explanation": "BigQuery separates storage and compute, and you pay for storage and the data scanned (or for reserved capacity). Bigtable is a wide-column NoSQL store, Cloud SQL is managed MySQL, PostgreSQL or SQL Server, and Dataproc is managed Spark/Hadoop."
     },
     {
       "id": "cloud-athena",
@@ -41,7 +41,7 @@
         "Amazon DynamoDB"
       ],
       "answer": 0,
-      "explanation": "Athena reads the files in place, using table definitions from the Glue Data Catalog, and bills by data scanned. Partitioning and Parquet reduce both cost and latency."
+      "explanation": "Athena reads the files in place, using table definitions from the Glue Data Catalog, and by default bills by data scanned (provisioned capacity is an option). Partitioning and Parquet reduce both cost and latency."
     },
     {
       "id": "cloud-lambda-limit",

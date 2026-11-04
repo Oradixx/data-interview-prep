@@ -90,7 +90,7 @@
       "id": "rag-agents-tool-calling",
       "type": "mcq",
       "level": 2,
-      "question": "With function / tool calling, who actually executes the tool?",
+      "question": "With function / tool calling on a tool you define yourself, who actually executes it?",
       "options": [
         "The LLM provider's servers, automatically",
         "Your application: the model returns the tool name and JSON arguments, you run it and send back the result",
@@ -98,7 +98,7 @@
         "Nobody; the model imagines the result"
       ],
       "answer": 1,
-      "explanation": "The model only proposes a structured call. Your code validates the arguments, applies permissions, runs the tool and returns the output as a new message. That is where you enforce safety."
+      "explanation": "The model only proposes a structured call. Your code validates the arguments, applies permissions, runs the tool and returns the output as a new message. That is where you enforce safety. Provider-hosted server tools (web search, code execution…) are the exception: the provider runs them."
     },
     {
       "id": "rag-agents-injection",

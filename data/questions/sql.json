@@ -53,7 +53,7 @@
         "The query needs a `DISTINCT` in the subquery"
       ],
       "answer": 0,
-      "explanation": "`x NOT IN (1, 2, NULL)` evaluates to UNKNOWN, never TRUE, so every row is filtered out. Use `NOT EXISTS` (or filter the NULLs out of the subquery), which behaves as expected."
+      "explanation": "`x NOT IN (1, 2, NULL)` is never TRUE: it is FALSE when `x` matches a value and NULL (unknown) otherwise, so `WHERE` filters out every row. Use `NOT EXISTS` (or filter the NULLs out of the subquery), which behaves as expected."
     },
     {
       "id": "sql-left-join-where",
@@ -81,7 +81,7 @@
         "It fails: window functions cannot use ORDER BY"
       ],
       "answer": 1,
-      "explanation": "With an `ORDER BY` inside `OVER`, the default frame goes from the start of the partition to the current row, which gives a cumulative sum. Without `ORDER BY`, you get the partition total on every row. Unlike `GROUP BY`, window functions keep every row."
+      "explanation": "With an `ORDER BY` inside `OVER`, the default frame is `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`: from the start of the partition through the current row's last peer, which gives a cumulative sum. Rows with the same `order_date` are peers and get the same total; use `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` for a strict row-by-row total. Without `ORDER BY`, you get the partition total on every row. Unlike `GROUP BY`, window functions keep every row."
     },
     {
       "id": "sql-index-unusable",

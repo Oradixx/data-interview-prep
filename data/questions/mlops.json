@@ -22,12 +22,12 @@
       "question": "What is a model registry for?",
       "options": [
         "Storing training data",
-        "Versioning models and managing their promotion (staging, production) with an audit trail",
+        "Versioning models and managing their promotion to production (aliases, tags) with lineage and an audit trail",
         "Running hyperparameter searches",
         "Serving predictions at low latency"
       ],
       "answer": 1,
-      "explanation": "The registry is the source of truth for which model version is in production, which makes promotion and rollback explicit and traceable."
+      "explanation": "The registry is the source of truth for which model version is in production, which makes promotion and rollback explicit and traceable. MLflow deprecated its fixed stages (Staging, Production, Archived) in 2.9.0: you now point an alias such as `@champion` at a version, and use tags or separate environments."
     },
     {
       "id": "mlops-concept-drift",
@@ -41,7 +41,7 @@
         "Label leakage"
       ],
       "answer": 1,
-      "explanation": "Data drift is a change in P(X), the inputs. Concept drift is a change in P(y | X), the relationship the model learned. Concept drift is only visible once you get fresh labels, so it requires retraining."
+      "explanation": "Data drift is a change in P(X), the inputs. Concept drift is a change in P(y | X), the relationship the model learned. Since the inputs can look unchanged, detecting concept drift requires fresh labels, and fixing it usually means retraining on recent data."
     },
     {
       "id": "mlops-skew",
