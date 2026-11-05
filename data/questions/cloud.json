@@ -24,10 +24,10 @@
         "Bigtable",
         "BigQuery",
         "Cloud SQL",
-        "Dataproc"
+        "Managed Service for Apache Spark (formerly Dataproc)"
       ],
       "answer": 1,
-      "explanation": "BigQuery separates storage and compute, and you pay for storage and the data scanned (or for reserved capacity). Bigtable is a wide-column NoSQL store, Cloud SQL is managed PostgreSQL/MySQL, and Dataproc is managed Spark/Hadoop."
+      "explanation": "BigQuery separates storage and compute, and you pay for storage and the data scanned (or for reserved capacity). Bigtable is a wide-column NoSQL store, Cloud SQL is managed MySQL, PostgreSQL or SQL Server, and Managed Service for Apache Spark (formerly Dataproc) runs Spark clusters for you."
     },
     {
       "id": "cloud-athena",
@@ -41,7 +41,7 @@
         "Amazon DynamoDB"
       ],
       "answer": 0,
-      "explanation": "Athena reads the files in place, using table definitions from the Glue Data Catalog, and bills by data scanned. Partitioning and Parquet reduce both cost and latency."
+      "explanation": "Athena reads the files in place, using table definitions from the Glue Data Catalog, and bills SQL queries by data scanned, or per DPU-hour if you reserve compute with Capacity Reservations. Partitioning and Parquet reduce both cost and latency."
     },
     {
       "id": "cloud-lambda-limit",
@@ -50,12 +50,12 @@
       "question": "Why is AWS Lambda a poor fit for a 2-hour data transformation?",
       "options": [
         "Lambda cannot read from S3",
-        "A Lambda invocation can run for 15 minutes at most",
+        "A standard Lambda invocation can run for 15 minutes at most",
         "Lambda only supports JavaScript",
         "Lambda cannot be scheduled"
       ],
       "answer": 1,
-      "explanation": "Lambda is designed for short, event-driven tasks (up to 15 minutes). Long jobs belong on containers (ECS/Fargate, Cloud Run jobs), managed Spark (EMR, Dataproc, Glue) or a batch service."
+      "explanation": "Lambda is designed for short, event-driven tasks: the function timeout is capped at 900 seconds (15 minutes). Lambda Managed Instances raise it to 90 minutes for asynchronous and event-source invocations only, and durable functions can run for up to a year by checkpointing a multi-step workflow, not by running one long computation. Long jobs belong on containers (ECS/Fargate, Cloud Run jobs), managed Spark (EMR, Glue, Google's Managed Service for Apache Spark) or a batch service."
     },
     {
       "id": "cloud-least-privilege",

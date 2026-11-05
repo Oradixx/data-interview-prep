@@ -41,7 +41,7 @@
         "Sorts both tables before merging them"
       ],
       "answer": 0,
-      "explanation": "Every executor joins its partitions of the big table locally with its copy of the small one, which avoids shuffling 2 TB. Spark does it automatically below `spark.sql.autoBroadcastJoinThreshold`, or when you use the `broadcast()` hint."
+      "explanation": "Every executor joins its partitions of the big table locally with its copy of the small one, which avoids shuffling 2 TB. Spark does it automatically when a table's estimated size is below `spark.sql.autoBroadcastJoinThreshold`, which defaults to 10 MB, so a 20 MB table needs the `broadcast()` hint or a higher threshold."
     },
     {
       "id": "spark-skew",
@@ -49,13 +49,13 @@
       "level": 3,
       "question": "In a stage, 199 tasks finish in seconds and one runs for 20 minutes. What is the likely cause, and a fix?",
       "options": [
-        "Data skew on the join or group key; salt the key or enable AQE skew-join handling",
+        "Data skew on the join or group key; salt the key, or let AQE split skewed join partitions",
         "Not enough memory on the driver; increase driver memory",
         "Too many partitions; call `coalesce(1)`",
         "The cluster is too big; remove executors"
       ],
       "answer": 0,
-      "explanation": "One key (often NULL or a default value) holds a large share of the rows, so its partition becomes a straggler. Salting spreads that key over several partitions; Adaptive Query Execution can split skewed partitions automatically."
+      "explanation": "One key (often NULL or a default value) holds a large share of the rows, so its partition becomes a straggler. Salting spreads that key over several partitions. Adaptive Query Execution, on by default since Spark 3.2, splits skewed partitions of sort-merge joins automatically (`spark.sql.adaptive.skewJoin.enabled`); for a skewed aggregation, salting (a two-stage aggregation) is the usual fix."
     },
     {
       "id": "spark-coalesce",
@@ -69,7 +69,7 @@
         "`coalesce` sorts the data"
       ],
       "answer": 1,
-      "explanation": "`coalesce` is cheap for reducing partitions before a write, but it can leave them unbalanced. `repartition` rebalances evenly (optionally by column) at the cost of a shuffle."
+      "explanation": "`coalesce` is cheap for reducing partitions before a write, but it can leave them unbalanced, and a drastic `coalesce(1)` can also run the upstream computation on a single node. `repartition` redistributes the rows at the cost of a shuffle; with columns, it hash-partitions by them, so a skewed key still lands in one partition."
     },
     {
       "id": "spark-small-files",

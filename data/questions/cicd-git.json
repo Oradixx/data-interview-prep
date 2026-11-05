@@ -145,7 +145,7 @@
         "`git rebase --continue`",
         "Run the tests, then `git push --force-with-lease`"
       ],
-      "explanation": "`--force-with-lease` refuses to overwrite the remote branch if someone else pushed to it in the meantime, unlike a plain `--force`."
+      "explanation": "`--force-with-lease` overwrites the remote branch only if it still matches your remote-tracking branch, so it refuses if someone else pushed since your last fetch; a plain `--force` overwrites unconditionally. A background `git fetch` defeats this check, which `--force-if-includes` guards against."
     }
   ]
 }

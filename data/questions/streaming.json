@@ -41,7 +41,7 @@
         "The group refuses to start"
       ],
       "answer": 1,
-      "explanation": "Within a group, a partition is assigned to at most one consumer, so parallelism is capped by the number of partitions. Different groups each receive every message."
+      "explanation": "Within a consumer group, a partition is assigned to at most one consumer, so parallelism is capped by the number of partitions. Different groups each receive every message. Share groups (Queues for Kafka, KIP-932, production-ready since Kafka 4.2) are a different kind of group that can have more consumers than partitions, for records processed one at a time rather than as an ordered stream."
     },
     {
       "id": "streaming-at-least-once",
@@ -125,7 +125,7 @@
         "A consumer of the group assigned to that partition fetches it",
         "The consumer processes it, then commits its offset"
       ],
-      "explanation": "With `acks=all`, the write is acknowledged only once all in-sync replicas have it, so losing one broker does not lose the record. Committing after processing gives at-least-once semantics."
+      "explanation": "With `acks=all` (the producer default), the write is acknowledged only once all in-sync replicas have it, so the record survives as long as one in-sync replica remains alive. Set `min.insync.replicas` (typically 2 with a replication factor of 3) so that writes fail instead of resting on the leader alone when the ISR shrinks. Committing after processing gives at-least-once semantics."
     },
     {
       "id": "streaming-aggregation",

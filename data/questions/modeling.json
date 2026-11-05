@@ -27,7 +27,7 @@
         "The partitioning scheme"
       ],
       "answer": 0,
-      "explanation": "The grain (\"one row per order line\", \"one row per device per minute\") determines which dimensions and measures make sense. Mixing grains in one table leads to double counting."
+      "explanation": "The grain (\"one row per order line\", \"one row per device per minute\") determines which dimensions and measures make sense. In Kimball's four-step method, it is declared right after choosing the business process, before the dimensions and facts. Mixing grains in one table leads to double counting."
     },
     {
       "id": "modeling-scd2",
